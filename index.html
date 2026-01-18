@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DZ PAGE | Multi-Service Toolkit</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            transition: background-color 0.3s ease;
+            overflow-x: hidden !important;
+            width: 100%;
+        }
+        
+        /* Header Fix: Scroll කරද්දී අතුරුදහන් නොවීමට */
+        #main-header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 9999 !important;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .dark #main-header {
+            background: rgba(15, 23, 42, 0.85);
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .float-anim { animation: float 4s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+
+        /* AOS Animation smoothness */
+        [data-aos] {
+            pointer-events: none;
+        }
+        .aos-animate {
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-white pt-24">
+
+    <header id="main-header" class="border-b border-slate-200/50 dark:border-slate-800/50">
+        <div class="container mx-auto px-4 md:px-10 h-16 md:h-20 flex items-center justify-between">
+            
+            <a href="#" class="flex items-center space-x-2 shrink-0">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-bolt text-white text-sm"></i>
+                </div>
+                <span class="text-xl font-bold dark:text-white uppercase tracking-tight">DZ<span class="text-blue-600">PAGE</span></span>
+            </a>
+
+            <nav class="hidden lg:flex items-center space-x-8 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                <a href="#services" class="hover:text-blue-600 transition">Free Bots</a>
+                <a href="#" class="hover:text-blue-600 transition">Social Boost</a>
+                <a href="#" class="hover:text-blue-600 transition">AI Chat</a>
+            </nav>
+
+            <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 shrink-0">
+                <i class="fa-solid fa-bars-staggered text-xl" id="menu-icon"></i>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-all">
+            <div class="flex flex-col p-6 space-y-4 font-semibold">
+                <a href="#services" class="hover:text-blue-600 py-2">Free Bots</a>
+                <a href="#" class="hover:text-blue-600 py-2">Social Boost</a>
+                <a href="#" class="hover:text-blue-600 py-2">AI Chat</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative pt-10 pb-24 px-6">
+        <div class="container mx-auto text-center" data-aos="zoom-in" data-aos-duration="1000">
+            <h1 class="text-5xl md:text-8xl font-extrabold mb-8 tracking-tighter float-anim">
+                Elevate Your <span class="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">Digital Game</span>
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 text-lg md:text-xl max-w-3xl mx-auto mb-12">
+                The hub for Free Bots, Social Boosting, and AI automation. Secure, fast, and always online.
+            </p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-5">
+                 <a href="#services" class="px-10 py-4 bg-blue-600 rounded-2xl font-bold text-white shadow-lg shadow-blue-600/40 hover:bg-blue-700 transition">Explore Services</a>
+                 <button onclick="toggleDarkMode()" class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 glass-card">
+                    <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
+                 </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="container mx-auto py-20 px-6">
+        <div class="text-center mb-16" data-aos="fade-up">
+            <h2 class="text-3xl font-bold uppercase tracking-widest text-blue-600 mb-2">Our Tools</h2>
+            <div class="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="glass-card p-8 rounded-[2rem] border border-blue-500/20" data-aos="fade-up" data-aos-delay="100">
+                <i class="fa-solid fa-robot text-3xl text-blue-500 mb-6"></i>
+                <h3 class="text-xl font-bold mb-2">Free Bots</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">High-performance WhatsApp automation bots with 24/7 uptime.</p>
+                <a href="#" class="mt-6 inline-block text-blue-500 font-bold text-sm">LAUNCH BOT →</a>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] border border-purple-500/20" data-aos="fade-up" data-aos-delay="200">
+                <i class="fa-solid fa-rocket text-3xl text-purple-500 mb-6"></i>
+                <h3 class="text-xl font-bold mb-2">Social Boost</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">Boost your followers and engagement on Instagram and TikTok.</p>
+                <a href="#" class="mt-6 inline-block text-purple-500 font-bold text-sm">GET STARTED →</a>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] border border-emerald-500/20" data-aos="fade-up" data-aos-delay="300">
+                <i class="fa-solid fa-brain text-3xl text-emerald-500 mb-6"></i>
+                <h3 class="text-xl font-bold mb-2">AI Chat</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">Access smart AI models for creative writing and problem solving.</p>
+                <a href="#" class="mt-6 inline-block text-emerald-500 font-bold text-sm">CHAT NOW →</a>
+            </div>
+
+            <div class="glass-card p-8 rounded-[2rem] border border-orange-500/20" data-aos="fade-up" data-aos-delay="400">
+                <i class="fa-solid fa-code text-3xl text-orange-500 mb-6"></i>
+                <h3 class="text-xl font-bold mb-2">API Suite</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">Powerful developer APIs for integration and data services.</p>
+                <a href="#" class="mt-6 inline-block text-orange-500 font-bold text-sm">VIEW DOCS →</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-slate-200 dark:border-slate-800 py-10 text-center">
+        <p class="text-slate-500 text-sm">© 2026 DZ PAGE. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // AOS Configuration for repeating animations
+        AOS.init({ 
+            duration: 800, 
+            once: false,  // මේකෙන් තමයි ආයෙ ආයෙ animate වෙන්නේ
+            mirror: true, // උඩට scroll කරද්දීත් පේන්න
+            anchorPlacement: 'top-bottom'
+        });
+
+        // Dark Mode Logic
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-xl' : 'fa-solid fa-moon text-xl';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Mobile Menu Logic
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const icon = document.getElementById('menu-icon');
+
+        menuBtn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+            const isHidden = menu.classList.contains('hidden');
+            icon.className = isHidden ? 'fa-solid fa-bars-staggered text-xl' : 'fa-solid fa-xmark text-xl';
+        });
+
+        // Load Theme Preference
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-icon').className = 'fa-solid fa-sun text-xl';
+        }
+    </script>
+</body>
+</html>
