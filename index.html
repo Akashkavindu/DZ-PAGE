@@ -238,6 +238,492 @@
             if(document.getElementById('theme-icon')) document.getElementById('theme-icon').className = 'fa-solid fa-sun text-xl';
         }
     </script>
+
+    <!-- AI Chat Widget -->
+<div id="aiChatWidget" class="fixed bottom-6 right-6 z-50">
+    <!-- Chat Button -->
+    <button id="chatToggleBtn" class="w-14 h-14 bg-gradient-to-br from-purple-600 to-pink-500 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group">
+        <i class="fas fa-robot text-white text-xl group-hover:scale-110 transition-transform"></i>
+        <span id="notificationBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white hidden"></span>
+    </button>
+    
+    <!-- Chat Window -->
+    <div id="chatWindow" class="absolute bottom-16 right-0 w-96 h-[600px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-300 transform scale-0 opacity-0 origin-bottom-right">
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-brain text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold">AI Assistant</h3>
+                        <p class="text-xs text-purple-200">Powered by OpenAI GPT-OSS 120B</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="clearChatBtn" class="p-2 hover:bg-white/10 rounded-lg transition">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                    <button id="closeChatBtn" class="p-2 hover:bg-white/10 rounded-lg transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2 text-xs flex items-center space-x-2">
+                <span class="px-2 py-1 bg-white/20 rounded-full">Free</span>
+                <span class="px-2 py-1 bg-white/20 rounded-full">117B Parameters</span>
+            </div>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div id="chatMessages" class="flex-1 h-[400px] overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-800">
+            <!-- Initial welcome message -->
+            <div class="flex justify-start">
+                <div class="max-w-[80%] bg-white dark:bg-slate-700 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-xs"></i>
+                        </div>
+                        <span class="text-xs font-semibold">AI Assistant</span>
+                    </div>
+                    <p class="text-sm">Hello! I'm your AI assistant powered by OpenAI's GPT-OSS 120B model. How can I help you today?</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Ask me anything about coding, writing, analysis, or general knowledge!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="hidden px-4 py-2">
+            <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-robot text-white text-xs"></i>
+                </div>
+                <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse delay-150"></div>
+                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse delay-300"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Input -->
+        <div class="border-t border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-900">
+            <div class="flex space-x-2">
+                <div class="flex-1 relative">
+                    <textarea 
+                        id="chatInput" 
+                        placeholder="Type your message here..." 
+                        rows="1"
+                        class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-sm"
+                        oninput="autoResize(this)"></textarea>
+                    <button id="sendButton" class="absolute right-2 bottom-2 px-4 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:opacity-90 transition">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2 text-xs text-slate-500 flex justify-between">
+                <span>Press Enter to send, Shift+Enter for new line</span>
+                <span id="tokenCount">Tokens: 0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Chat Widget Styles */
+    #aiChatWidget {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    #chatWindow {
+        transform: scale(0) translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    #chatWindow.active {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    #chatToggleBtn {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(147, 51, 234, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0); }
+    }
+    
+    /* Message Styles */
+    .user-message .message-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px 20px 0 20px;
+    }
+    
+    .ai-message .message-bubble {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #1a202c;
+        border-radius: 20px 20px 20px 0;
+    }
+    
+    .dark .ai-message .message-bubble {
+        background: #1e293b;
+        border-color: #334155;
+        color: #f1f5f9;
+    }
+    
+    /* Scrollbar Styles */
+    #chatMessages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #chatMessages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    #chatMessages::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    
+    .dark #chatMessages::-webkit-scrollbar-thumb {
+        background: #475569;
+    }
+    
+    /* Animation for new messages */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message-container {
+        animation: slideIn 0.3s ease-out;
+    }
+</style>
+
+<script>
+    // OpenRouter Configuration
+    const OPENROUTER_API_KEY = "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";
+    const MODEL_ID = "openai/gpt-oss-120b:free";
+    
+    // DOM Elements
+    const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatWindow = document.getElementById('chatWindow');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+    const tokenCount = document.getElementById('tokenCount');
+    const notificationBadge = document.getElementById('notificationBadge');
+    
+    // Chat State
+    let isChatOpen = false;
+    let messageHistory = [
+        { role: "assistant", content: "Hello! I'm your AI assistant powered by OpenAI's GPT-OSS 120B model. How can I help you today?" }
+    ];
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        setupEventListeners();
+        updateTokenCount();
+    });
+    
+    function setupEventListeners() {
+        // Toggle chat window
+        chatToggleBtn.addEventListener('click', toggleChatWindow);
+        closeChatBtn.addEventListener('click', toggleChatWindow);
+        
+        // Send message on button click
+        sendButton.addEventListener('click', sendMessage);
+        
+        // Send message on Enter key (without Shift)
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Clear chat history
+        clearChatBtn.addEventListener('click', clearChatHistory);
+        
+        // Close chat when clicking outside
+        document.addEventListener('click', (e) => {
+            if (isChatOpen && 
+                !chatWindow.contains(e.target) && 
+                !chatToggleBtn.contains(e.target)) {
+                toggleChatWindow();
+            }
+        });
+        
+        // Auto-resize textarea
+        chatInput.addEventListener('input', () => {
+            updateTokenCount();
+        });
+    }
+    
+    function toggleChatWindow() {
+        isChatOpen = !isChatOpen;
+        chatWindow.classList.toggle('active', isChatOpen);
+        
+        if (isChatOpen) {
+            // Hide notification badge when opening chat
+            notificationBadge.classList.add('hidden');
+            // Focus on input
+            setTimeout(() => chatInput.focus(), 300);
+            // Scroll to bottom
+            setTimeout(() => scrollToBottom(), 300);
+        }
+    }
+    
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    
+    function updateTokenCount() {
+        const text = chatInput.value;
+        const tokens = Math.ceil(text.length / 4); // Rough estimation
+        tokenCount.textContent = `Tokens: ${tokens}`;
+    }
+    
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function addMessage(role, content, isStreaming = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} message-container`;
+        
+        const bubbleClass = role === 'user' ? 'user-message' : 'ai-message';
+        
+        messageDiv.innerHTML = `
+            <div class="max-w-[80%] ${role === 'user' ? 'rounded-2xl rounded-br-none' : 'rounded-2xl rounded-bl-none'} ${role === 'user' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white'} p-4 shadow-sm message-bubble">
+                ${role === 'assistant' ? `
+                    <div class="flex items-center space-x-2 mb-2">
+                        <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-xs"></i>
+                        </div>
+                        <span class="text-xs font-semibold">AI Assistant</span>
+                    </div>
+                ` : ''}
+                <div class="text-sm ${isStreaming ? 'streaming-text' : ''}" id="${isStreaming ? 'streaming-text' : ''}">
+                    ${content}
+                </div>
+                ${!isStreaming ? `
+                    <div class="flex justify-end mt-2">
+                        <span class="text-xs opacity-70">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+        
+        return isStreaming ? messageDiv.querySelector('.text-sm') : null;
+    }
+    
+    function showTypingIndicator() {
+        typingIndicator.classList.remove('hidden');
+        scrollToBottom();
+    }
+    
+    function hideTypingIndicator() {
+        typingIndicator.classList.add('hidden');
+    }
+    
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+        
+        // Add user message
+        addMessage('user', message);
+        messageHistory.push({ role: "user", content: message });
+        
+        // Clear input
+        chatInput.value = '';
+        autoResize(chatInput);
+        updateTokenCount();
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Disable input while processing
+        chatInput.disabled = true;
+        sendButton.disabled = true;
+        
+        try {
+            // Create streaming message
+            const streamingElement = addMessage('assistant', '', true);
+            let fullResponse = '';
+            
+            // Call OpenRouter API with streaming
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': window.location.origin,
+                    'X-Title': 'DZ PAGE AI Chat'
+                },
+                body: JSON.stringify({
+                    model: MODEL_ID,
+                    messages: messageHistory,
+                    stream: true,
+                    stream_options: {
+                        include_usage: true
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') continue;
+                        
+                        try {
+                            const parsed = JSON.parse(data);
+                            const content = parsed.choices?.[0]?.delta?.content;
+                            const usage = parsed.usage;
+                            
+                            if (content) {
+                                fullResponse += content;
+                                if (streamingElement) {
+                                    streamingElement.innerHTML = fullResponse.replace(/\n/g, '<br>');
+                                }
+                            }
+                            
+                            if (usage) {
+                                // You can display token usage if needed
+                                console.log('Token usage:', usage);
+                            }
+                        } catch (e) {
+                            // Skip parsing errors
+                        }
+                    }
+                }
+            }
+            
+            // Add final message to history
+            messageHistory.push({ role: "assistant", content: fullResponse });
+            
+            // Replace streaming message with final message
+            streamingElement.parentElement.parentElement.remove();
+            addMessage('assistant', fullResponse);
+            
+            // Show notification badge for new responses
+            if (!isChatOpen) {
+                notificationBadge.classList.remove('hidden');
+            }
+            
+        } catch (error) {
+            console.error('Chat error:', error);
+            addMessage('assistant', `Sorry, I encountered an error: ${error.message}. Please try again.`);
+            messageHistory.pop(); // Remove the last user message since it failed
+        } finally {
+            hideTypingIndicator();
+            chatInput.disabled = false;
+            sendButton.disabled = false;
+            chatInput.focus();
+        }
+    }
+    
+    function clearChatHistory() {
+        // Keep only the initial welcome message
+        chatMessages.innerHTML = `
+            <div class="flex justify-start">
+                <div class="max-w-[80%] bg-white dark:bg-slate-700 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-xs"></i>
+                        </div>
+                        <span class="text-xs font-semibold">AI Assistant</span>
+                    </div>
+                    <p class="text-sm">Hello! I'm your AI assistant powered by OpenAI's GPT-OSS 120B model. How can I help you today?</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Ask me anything about coding, writing, analysis, or general knowledge!</p>
+                </div>
+            </div>
+        `;
+        
+        messageHistory = [
+            { role: "assistant", content: "Hello! I'm your AI assistant powered by OpenAI's GPT-OSS 120B model. How can I help you today?" }
+        ];
+        
+        // Show a confirmation toast
+        showToast('Chat history cleared');
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-24 right-6 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-semibold shadow-lg z-50 animate-slideIn';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+    
+    // Add CSS animation for slide in
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .streaming-text::after {
+            content: '█';
+            animation: blink 1s infinite;
+            color: #8b5cf6;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .animate-slideIn {
+            animation: slideIn 0.3s ease-out;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 </body>
 
 </html>
